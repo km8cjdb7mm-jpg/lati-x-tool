@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>LATI-X — أداة القالب البصري (نسخة آيفون)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@500;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root{
+    --ink:#16293A;
+    --ink-2:#1D3548;
+    --paper:#F4EFE4;
+    --paper-2:#ECE4D2;
+    --brass:#D3A24F;
+    --brass-soft:rgba(211,162,79,.35);
+    --signal:#B8543F;
+    --slate:#93A3B2;
+    --slate-dark:#3A4B5C;
+    --line-dark:rgba(211,162,79,.24);
+    --line-light:rgba(15,30,44,.16);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'IBM Plex Sans Arabic', sans-serif;
+    background:#0A141D;
+    color:#E7E1D2;
+    min-height:100vh;
+  }
+  .app{
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+  }
+
+  /* ===== لوحة التحكم (شريط أفقي سفلي) ===== */
+  .panel{
+    background:#0D1922;
+    border-top:1px solid rgba(199,150,60,.18);
+    order:2;
+    flex-shrink:0;
+    max-height:40vh;
+    display:flex;
+    flex-direction:column;
+  }
+  .panel-topbar{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:12px 20px;
+    border-bottom:1px solid rgba(199,150,60,.12);
+    flex-shrink:0;
+  }
+  .panel-brand{
+    font-family:'Noto Kufi Arabic', sans-serif;
+    font-weight:800;
+    font-size:15px;
+    color:var(--brass);
+    flex-shrink:0;
+  }
+  .panel-tabs{
+    display:flex;
+    gap:6px;
+    flex:1;
+  }
+  .panel-tabs button{
+    font-family:inherit;
+    font-size:12.5px;
+    font-weight:600;
+    padding:9px 16px;
+    border-radius:6px;
+    border:1px solid rgba(199,150,60,.2);
+    background:transparent;
+    color:#C9C2AF;
+    cursor:pointer;
+  }
+  .panel-tabs button.active{
+    background:rgba(211,162,79,.14);
+    border-color:var(--brass);
+    color:var(--brass);
+  }
+  .panel-body{
+    padding:16px 20px 20px;
+    overflow-y:auto;
+  }
+  .ptab{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-start;
+    gap:14px;
+  }
+  .group{
+    flex:1 1 190px;
+    min-width:170px;
+    max-width:260px;
+    margin-bottom:0;
+  }
+  .group-wide{
+    flex-basis:320px;
+    max-width:420px;
+  }
+  .group-full{
+    flex-basis:100%;
+    max-width:100%;
+  }
+  .group label{
+    display:block;
+    font-size:11.5px;
+    font-weight:600;
+    color:var(--brass);
+    margin-bottom:6px;
+    letter-spacing:.02em;
+  }
+  .tabs{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .tabs button{
+    font-family:inherit;
+    font-size:12.5px;
+    font-weight:600;
+    padding:9px 14px;
+    border-radius:6px;
+    border:1px solid rgba(199,150,60,.22);
+    background:transparent;
+    color:#C9C2AF;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .tabs button.active{
+    background:var(--brass);
+    border-color:var(--brass);
+    color:#161006;
+  }
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  select, input[type=text], textarea{
+    width:100%;
+    font-family:'IBM Plex Sans Arabic', sans-serif;
+    font-size:13px;
+    background:#111F2B;
+    border:1px solid rgba(199,150,60,.2);
+    color:#F0EADB;
+    padding:9px 10px;
+    border-radius:6px;
+    resize:vertical;
+    line-height:1.6;
+  }
+  textarea{min-height:44px;}
+  select:focus, input:focus, textarea:focus{
+    outline:none;
+    border-color:var(--brass);
+  }
+  .toggle-row{
+    display:flex;
+    gap:8px;
+    margin-top:4px;
+  }
+  .toggle-row button{
+    flex:1;
+    font-family:inherit;
+    font-size:12px;
+    padding:8px;
+    border-radius:6px;
+    border:1px solid rgba(199,150,60,.22);
+    background:transparent;
+    color:#C9C2AF;
+    cursor:pointer;
+  }
+  .toggle-row button.active{
+    background:rgba(199,150,60,.16);
+    border-color:var(--brass);
+    color:var(--brass);
+  }
+  .file-btn{
+    display:block;
+    font-size:12px;
+    padding:9px 10px;
+    border:1px dashed rgba(199,150,60,.35);
+    border-radius:6px;
+    text-align:center;
+    color:var(--slate);
+    cursor:pointer;
+  }
+  .file-btn:hover{border-color:var(--brass);color:var(--brass);}
+  input[type=file]{display:none;}
+  .clear-bg{
+    margin-top:6px;
+    font-size:11px;
+    color:var(--signal);
+    background:none;
+    border:none;
+    cursor:pointer;
+    padding:0;
+  }
+  .hint{
+    font-size:10.5px;
+    color:var(--slate);
+    margin-top:6px;
+    line-height:1.55;
+  }
+  .download-btn{
+    flex-shrink:0;
+    padding:11px 22px;
+    background:var(--brass);
+    border:none;
+    border-radius:7px;
+    color:#161006;
+    font-family:'Noto Kufi Arabic', sans-serif;
+    font-weight:800;
+    font-size:14px;
+    cursor:pointer;
+  }
+  .download-btn:hover{filter:brightness(1.08);}
+
+  /* ===== منطقة المعاينة ===== */
+  .stage{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px 20px;
+    order:1;
+    flex:1;
+    min-height:0;
+    overflow:auto;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(199,150,60,.06), transparent 45%),
+      #0A141D;
+  }
+  .stage-inner{position:relative;}
+
+  /* ===== البطاقة (يُصدَّر هذا العنصر كما هو) ===== */
+  #card{
+    position:relative;
+    overflow:hidden;
+    font-family:'IBM Plex Sans Arabic', sans-serif;
+    background:var(--ink);
+    color:#F4EFE4;
+  }
+  #card.light{
+    background:var(--paper);
+    color:var(--ink);
+  }
+  #card.size-square{width:1080px;height:1080px;}
+  #card.size-wide{width:1200px;height:675px;}
+
+  #card .bg-photo{
+    position:absolute;inset:0;
+    width:100%;height:100%;
+    object-fit:cover;
+    opacity:.20;
+    filter:saturate(.85);
+  }
+  #card .bg-overlay{
+    position:absolute;inset:0;
+    background:
+      linear-gradient(180deg, rgba(22,41,58,.55) 0%, rgba(22,41,58,.72) 32%, rgba(22,41,58,.94) 62%, rgba(22,41,58,.97) 100%);
+  }
+  #card.light .bg-overlay{
+    background:
+      linear-gradient(180deg, rgba(244,239,228,.6) 0%, rgba(244,239,228,.76) 32%, rgba(244,239,228,.95) 62%, rgba(244,239,228,.97) 100%);
+  }
+
+  .card-inner{
+    position:relative;
+    z-index:2;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    padding:52px 56px 40px;
+  }
+
+  /* شريط التاريخ العلوي بأسلوب برقيات الوكالات */
+  .dateline{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:15px;
+    font-weight:600;
+    letter-spacing:.06em;
+    color:var(--brass);
+    padding-bottom:16px;
+    border-bottom:1.5px solid var(--line-dark);
+  }
+  #card.light .dateline{border-color:var(--line-light);}
+  .dateline .mark{
+    font-family:'Noto Kufi Arabic', sans-serif;
+    font-size:27px;
+    font-weight:800;
+    letter-spacing:0;
+    line-height:1.1;
+  }
+  .dateline .meta{
+    font-family:'IBM Plex Sans Arabic', sans-serif;
+    font-size:13px;
+    font-weight:500;
+    color:var(--slate);
+    letter-spacing:0;
+  }
+  #card.light .dateline .meta{color:var(--slate-dark);}
+
+  .content{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:36px 0;
+  }
+  .kicker-rule{
+    width:64px;
+    height:3px;
+    background:var(--brass);
+    margin-bottom:20px;
+    border-radius:2px;
+  }
+  .byline{
+    font-family:'IBM Plex Sans Arabic', sans-serif;
+    font-size:12px;
+    font-weight:500;
+    color:var(--slate);
+    margin-top:5px;
+    letter-spacing:0;
+  }
+  #card.light .byline{color:var(--slate-dark);}
+  .brand-col{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+  }
+
+  /* شارة عاجل */
+  .tag-pill{
+    display:inline-block;
+    background:var(--signal);
+    color:#FBEFE9;
+    font-family:'Noto Kufi Arabic', sans-serif;
+    font-weight:800;
+    font-size:16px;
+    padding:7px 18px;
+    border-radius:3px;
+    white-space:nowrap;
+    margin-bottom:22px;
+    letter-spacing:0;
+  }
+
+  .headline{
+    font-family:'Noto Kufi Arabic', sans-serif;
+    font-weight:800;
+    line-height:1.32;
+    margin:0;
+  }
+  .size-square .headline{font-size:50px;}
+  .size-wide .headline{font-size:42px;}
+
+  .subline{
+    font-family:'IBM Plex Sans Arabic', sans-serif;
+    font-size:19px;
+    line-height:1.75;
+    color:#D9D2C0;
+    margin-top:22px;
+    font-weight:400;
+  }
+  #card.light .subline{color:#2E4051;}
+  .subline p{margin:0 0 14px;}
+  .subline p:last-child{margin-bottom:0;}
+
+  /* اقتباس */
+  .quote-mark{
+    font-family:'Noto Kufi Arabic', sans-serif;
+    font-size:76px;
+    font-weight:900;
+    color:var(--brass);
+    line-height:.6;
+    margin-bottom:6px;
+    opacity:.9;
+  }
+  .quote-text{
+    font-family:'Noto Kufi Arabic', sans-serif;
+    font-weight:700;
+    line-height:1.5;
+    white-space:pre-line;
+  }
+  .size-square .quote-text{font-size:38px;}
+  .size-wide .quote-text{font-size:32px;}
+  .quote-attr{
+    margin-top:26px;
+    font-family:'IBM Plex Sans Arabic', sans-serif;
+    font-size:16px;
+    font-weight:600;
+    color:var(--brass);
+  }
+  .quote-attr span{
+    display:block;
+    font-size:13px;
+    font-weight:400;
+    color:var(--slate);
+    margin-top:3px;
+  }
+  #card.light .quote-attr span{color:var(--slate-dark);}
+
+  /* إحصائية */
+  .stat-eyebrow{
+    font-family:'IBM Plex Sans Arabic', sans-serif;
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:0;
+    color:var(--brass);
+    margin-bottom:18px;
+  }
+  .stat-big{
+    display:flex;
+    align-items:baseline;
+    gap:16px;
+    margin-bottom:8px;
+  }
+  .stat-number{
+    font-family:'Noto Kufi Arabic', sans-serif;
+    font-weight:900;
+    font-size:104px;
+    line-height:1;
+    color:var(--brass);
+    direction:ltr;
+    unicode-bidi:embed;
+  }
+  .stat-label{
+    font-family:'Noto Kufi Arabic', sans-serif;
+    font-size:26px;
+    font-weight:700;
+    line-height:1.4;
+    max-width:60%;
+  }
+  .stat-rows{
+    margin-top:30px;
+    border-top:1px solid var(--line-dark);
+  }
+  #card.light .stat-rows{border-color:var(--line-light);}
+  .stat-row{
+    display:flex;
+    justify-content:space-between;
+    padding:13px 0;
+    border-bottom:1px solid var(--line-dark);
+    font-size:16px;
+  }
+  #card.light .stat-row{border-color:var(--line-light);}
+  .stat-row .k{color:#D9D2C0;font-weight:500;}
+  #card.light .stat-row .k{color:#2E4051;}
+  .stat-row .v{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    color:var(--brass);
+    direction:ltr;
+    unicode-bidi:embed;
+  }
+
+  /* غلاف خيط */
+  .thread-eyebrow{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:'IBM Plex Sans Arabic', sans-serif;
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:0;
+    color:var(--brass);
+    margin-bottom:20px;
+  }
+  .thread-eyebrow::before{
+    content:"";
+    width:26px;height:1.5px;
+    background:var(--brass);
+  }
+  .thread-title{
+    font-family:'Noto Kufi Arabic', sans-serif;
+    font-weight:900;
+    line-height:1.28;
+  }
+  .size-square .thread-title{font-size:56px;}
+  .size-wide .thread-title{font-size:46px;}
+  .thread-teaser{
+    margin-top:24px;
+    font-size:18px;
+    line-height:1.8;
+    color:#D9D2C0;
+    max-width:90%;
+  }
+  #card.light .thread-teaser{color:#2E4051;}
+
+  /* تذييل + مصدر */
+  .footer{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    padding-top:18px;
+    border-top:1.5px solid var(--line-dark);
+  }
+  #card.light .footer{border-color:var(--line-light);}
+  .footer-col-right{
+    text-align:right;
+  }
+  .footer-col-left{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:16px;
+  }
+  .byline-line{
+    width:70px;
+    height:1.5px;
+    background:var(--brass-soft);
+    margin:0 0 8px auto;
+  }
+  .byline-bottom{
+    font-family:'IBM Plex Sans Arabic', sans-serif;
+    font-size:12px;
+    font-weight:500;
+    color:var(--slate);
+  }
+  #card.light .byline-bottom{color:var(--slate-dark);}
+  .contact-line{
+    width:70px;
+    height:1.5px;
+    background:var(--brass-soft);
+    margin:0 auto 8px 0;
+  }
+  .contact-row{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .source-block{
+    font-family:'IBM Plex Sans Arabic', sans-serif;
+    font-size:14px;
+    line-height:1.6;
+  }
+  .source-block .label{
+    color:var(--slate);
+    font-size:12px;
+  }
+  #card.light .source-block .label{color:var(--slate-dark);}
+  .source-block .combo{
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+  .source-block .name{
+    font-weight:700;
+    color:#F4EFE4;
+  }
+  #card.light .source-block .name{color:var(--ink);}
+  .source-block .sep{
+    color:var(--brass);
+  }
+  .source-block .type{
+    font-size:12px;
+    font-weight:600;
+    color:var(--brass);
+  }
+  #card.light .source-block .type{color:#8B6220;}
+  #card.light .source-block .sep{color:#8B6220;}
+
+  /* الزخرفة الهندسية — العنصر المميز (مستوحى من القمريات اليمنية) */
+  .qamariya{
+    position:absolute;
+    left:-40px;
+    bottom:-40px;
+    width:260px;
+    height:260px;
+    opacity:.16;
+    z-index:1;
+    pointer-events:none;
+  }
+  #card.light .qamariya{opacity:.22;}
+
+  /* ===== هذه نسخة مصممة أصلاً لآيفون — لا تنسيقات بديلة لشاشة حاسوب ===== */
+  html, body{ overscroll-behavior:none; }
+  button, .tabs button, .toggle-row button, .panel-tabs button{
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .app{ height:100dvh; }
+  .stage{
+    padding:10px 10px 8px;
+    flex:0 0 auto;
+    max-height:42vh;
+  }
+  .panel{
+    max-height:58dvh;
+    padding-bottom:env(safe-area-inset-bottom, 0);
+  }
+
+  .panel-topbar{
+    flex-wrap:wrap;
+    padding:10px 12px;
+    gap:8px;
+  }
+  .panel-brand{ font-size:14px; }
+  .panel-tabs{
+    flex:1 1 100%;
+    order:3;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  .panel-tabs button{
+    flex:1 1 auto;
+    font-size:12.5px;
+    padding:12px 8px;
+    min-height:44px;
+  }
+  .download-btn{
+    flex:1 1 auto;
+    order:2;
+    font-size:13.5px;
+    padding:13px 14px;
+    min-height:44px;
+  }
+
+  .panel-body{ padding:14px 14px 28px; }
+  .ptab{ gap:16px; }
+  .group, .group-wide, .group-full{
+    flex-basis:100%;
+    max-width:100%;
+    min-width:0;
+  }
+
+  /* منع تكبير Safari التلقائي عند اللمس + أهداف لمس أكبر */
+  select, input[type=text], textarea{
+    font-size:16px;
+    padding:13px 12px;
+    min-height:44px;
+  }
+  .tabs button{
+    font-size:13.5px;
+    padding:13px 14px;
+    min-height:44px;
+  }
+  .toggle-row button{
+    padding:13px 6px;
+    font-size:13px;
+    min-height:44px;
+  }
+  .row2{ gap:10px; }
+  .file-btn{ padding:13px 10px; min-height:44px; }
+  .download-btn{ -webkit-tap-highlight-color:transparent; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ================= لوحة التحكم ================= -->
+  <div class="panel">
+    <div class="panel-topbar">
+      <div class="panel-brand">LATI-X</div>
+      <div class="panel-tabs" id="panelTabs">
+        <button data-ptab="content" class="active">المحتوى</button>
+        <button data-ptab="identity">المصدر والتوقيع</button>
+        <button data-ptab="shape">الشكل والمقاس</button>
+      </div>
+      <button class="download-btn" id="downloadBtn" title="يُصدَّر بالحجم الفعلي (1080×1080 أو 1200×675) بجودة مضاعفة">⬇ تحميل PNG</button>
+    </div>
+
+    <div class="panel-body">
+
+      <!-- ===== تبويب: المحتوى ===== -->
+      <div class="ptab" data-ptab-panel="content">
+        <div class="group group-full">
+          <label>نوع البطاقة</label>
+          <div class="tabs" id="modeTabs">
+            <button data-mode="breaking">خبر عاجل</button>
+            <button data-mode="quote" class="active">اقتباس / تحليل</button>
+            <button data-mode="stat">إحصائية</button>
+            <button data-mode="thread">غلاف خيط</button>
+          </div>
+        </div>
+
+        <!-- حقول: عاجل -->
+        <div class="fields" data-for="breaking" style="display:none">
+          <div class="group"><label>نص الشارة</label><input type="text" id="b_tag" value="عاجل"></div>
+          <div class="group group-wide"><label>العنوان الرئيسي</label><textarea id="b_headline" placeholder="اكتب العنوان الرئيسي هنا..."></textarea>
+            <div class="hint">يُفضَّل جملة واحدة مختصرة، والتفاصيل تُنقل للسطر التوضيحي.</div>
+          </div>
+          <div class="group group-wide"><label>سطر توضيحي (اختياري)</label><textarea id="b_sub" placeholder="تفاصيل إضافية، سطر أو سطرين..."></textarea>
+            <div class="toggle-row" id="subSizeToggle">
+              <button data-size="16">نص طويل</button>
+              <button data-size="19" class="active">متوسط</button>
+              <button data-size="23">نص قصير</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- حقول: اقتباس -->
+        <div class="fields" data-for="quote" style="display:contents">
+          <div class="group group-wide"><label>نص الاقتباس</label><textarea id="q_text" placeholder="نص الاقتباس..."></textarea></div>
+          <div class="group"><label>الاسم</label><input type="text" id="q_name" value="" placeholder="اسم المتحدث"></div>
+          <div class="group"><label>الصفة</label><input type="text" id="q_role" value="" placeholder="الصفة أو المنصب"></div>
+        </div>
+
+        <!-- حقول: إحصائية -->
+        <div class="fields" data-for="stat" style="display:none">
+          <div class="group"><label>عنوان صغير (Eyebrow)</label><input type="text" id="s_eyebrow" value="" placeholder="بالأرقام"></div>
+          <div class="group"><label>الرقم الكبير</label><input type="text" id="s_number" value="" placeholder="مثال: 4.5M"></div>
+          <div class="group group-wide"><label>وصف الرقم</label><textarea id="s_label" placeholder="وصف مختصر للرقم..."></textarea></div>
+          <div class="group"><label>بند إضافي 1</label>
+            <div class="row2"><input type="text" id="s_k1" value="" placeholder="بند"><input type="text" id="s_v1" value="" placeholder="القيمة"></div>
+          </div>
+          <div class="group"><label>بند إضافي 2</label>
+            <div class="row2"><input type="text" id="s_k2" value="" placeholder="بند"><input type="text" id="s_v2" value="" placeholder="القيمة"></div>
+          </div>
+        </div>
+
+        <!-- حقول: خيط -->
+        <div class="fields" data-for="thread" style="display:none">
+          <div class="group">
+            <label>الكلمة المناسبة للموضوع</label>
+            <div class="toggle-row" id="threadWordToggle">
+              <button data-word="سلسلة" class="active">سلسلة</button>
+              <button data-word="محطات">محطات</button>
+              <button data-word="حلقات">حلقات</button>
+              <button data-word="تتبع">تتبع</button>
+            </div>
+            <div class="hint">سلسلة: عام لأي موضوع متسلسل. محطات: تطور زمني لحدث. حلقات: محتوى مقسّم موضوعياً. تتبع: رصد مستمر لملف حي.</div>
+          </div>
+          <div class="group"><label>عدد الأجزاء</label><input type="text" id="t_num" value="" placeholder="مثال: 7"></div>
+          <div class="group group-wide"><label>العنوان</label><textarea id="t_title" placeholder="عنوان استفزازي بصيغة سؤال أو تحدٍّ..."></textarea></div>
+          <div class="group group-wide"><label>سطر تشويقي</label><textarea id="t_teaser" placeholder="جملة تلمّح للمحتوى دون كشفه..."></textarea></div>
+        </div>
+
+        <div class="group">
+          <label>التاريخ / الموقع</label>
+          <div class="row2">
+            <input type="text" id="dl_loc" value="" placeholder="المدينة">
+            <input type="text" id="dl_date" value="">
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== تبويب: المصدر والتوقيع ===== -->
+      <div class="ptab" data-ptab-panel="identity" style="display:none">
+        <div class="group">
+          <label>المصدر <span style="color:var(--slate);font-weight:400">(تصنيف مقترح تلقائياً)</span></label>
+          <div class="row2">
+            <input type="text" id="src_name" list="srcList" value="" placeholder="اسم المصدر">
+            <input type="text" id="src_class" value="" placeholder="تصنيف المصدر">
+          </div>
+          <datalist id="srcList"></datalist>
+        </div>
+
+        <div class="group">
+          <label>الشعار النصي (ثابت — محفوظ تلقائياً)</label>
+          <input type="text" id="brand" value="" placeholder="فارغ حالياً">
+        </div>
+
+        <div class="group group-wide">
+          <label>اسم الكاتب (ثابت — محفوظ تلقائياً)</label>
+          <div class="row2">
+            <input type="text" id="byline_label" value="" placeholder="تحرير / إعداد...">
+            <input type="text" id="byline_name" value="" placeholder="اسم الكاتب">
+          </div>
+          <div class="toggle-row">
+            <button data-bpos="top" class="active" id="bposTop">أعلى تحت الشعار</button>
+            <button data-bpos="bottom" id="bposBottom">أسفل الحاشية</button>
+          </div>
+        </div>
+
+        <div class="group group-wide">
+          <label>معرّفات التواصل (ثابتة — محفوظة تلقائياً)</label>
+          <input type="text" id="ct_email" value="" placeholder="البريد الإلكتروني" style="margin-bottom:8px" dir="ltr">
+          <input type="text" id="ct_x" value="" placeholder="@x_handle" style="margin-bottom:8px" dir="ltr">
+          <input type="text" id="ct_fb" value="" placeholder="اسم صفحة فيسبوك" dir="ltr">
+          <div class="hint">تُحفظ تلقائياً وتبقى ثابتة في كل شريحة، وقابلة للتعديل يدوياً في أي وقت.</div>
+        </div>
+      </div>
+
+      <!-- ===== تبويب: الشكل والمقاس ===== -->
+      <div class="ptab" data-ptab-panel="shape" style="display:none">
+        <div class="group">
+          <label>مقاس الصورة</label>
+          <div class="toggle-row" id="sizeToggle">
+            <button data-size="size-square" class="active">مربع 1:1</button>
+            <button data-size="size-wide">أفقي 16:9</button>
+          </div>
+        </div>
+
+        <div class="group">
+          <label>الطابع اللوني</label>
+          <div class="toggle-row" id="variantToggle">
+            <button data-variant="dark" class="active">داكن</button>
+            <button data-variant="light">فاتح</button>
+          </div>
+        </div>
+
+        <div class="group group-wide">
+          <label>صورة خلفية (اختياري)</label>
+          <label class="file-btn" for="bgUpload">اختر صورة من جهازك</label>
+          <input type="file" id="bgUpload" accept="image/*">
+          <button class="clear-bg" id="clearBg" style="display:none">إزالة الصورة</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= المعاينة ================= -->
+  <div class="stage" style="position:relative;">
+    <button id="zoomBtn" style="
+      position:absolute; top:14px; left:14px; z-index:5;
+      background:rgba(13,25,34,.85); border:1px solid rgba(199,150,60,.35);
+      color:var(--brass); font-family:'IBM Plex Sans Arabic', sans-serif;
+      font-size:12.5px; font-weight:600; padding:9px 14px; border-radius:20px;
+      min-height:36px;
+    ">🔍 تكبير المعاينة</button>
+    <div class="stage-inner" id="stageInner">
+      <div id="card" class="size-square">
+        <img class="bg-photo" id="bgPhoto" style="display:none">
+        <div class="bg-overlay"></div>
+        <div class="card-inner">
+          <div class="dateline">
+            <div class="brand-col">
+              <span class="mark" id="brandMark"></span>
+              <span class="byline" id="outByline"></span>
+            </div>
+            <span class="meta"><span id="dlLoc"></span> ▪ <span id="dlDate"></span></span>
+          </div>
+
+          <div class="content">
+            <div class="kicker-rule" id="kickerRule"></div>
+            <!-- عاجل -->
+            <div class="mode-block" data-mode="breaking" style="display:none">
+              <div class="tag-pill"><span id="outTag">عاجل</span></div>
+              <h1 class="headline" id="outHeadline"></h1>
+              <div class="subline" id="outSub"></div>
+            </div>
+
+            <!-- اقتباس -->
+            <div class="mode-block" data-mode="quote">
+              <div class="quote-mark">"</div>
+              <div class="quote-text" id="outQuote"></div>
+              <div class="quote-attr" id="outQName"><span id="outQRole"></span></div>
+            </div>
+
+            <!-- إحصائية -->
+            <div class="mode-block" data-mode="stat" style="display:none">
+              <div class="stat-eyebrow" id="outSEyebrow"></div>
+              <div class="stat-big">
+                <div class="stat-number" id="outSNumber"></div>
+              </div>
+              <div class="stat-label" id="outSLabel"></div>
+              <div class="stat-rows">
+                <div class="stat-row"><span class="k" id="outSK1"></span><span class="v" id="outSV1"></span></div>
+                <div class="stat-row"><span class="k" id="outSK2"></span><span class="v" id="outSV2"></span></div>
+              </div>
+            </div>
+
+            <!-- خيط -->
+            <div class="mode-block" data-mode="thread" style="display:none">
+              <div class="thread-eyebrow" id="outTCount">سلسلة</div>
+              <h1 class="thread-title" id="outTTitle"></h1>
+              <p class="thread-teaser" id="outTTeaser"></p>
+            </div>
+          </div>
+
+          <div class="footer">
+            <div class="footer-col-right" id="footerColRight" style="display:none">
+              <div class="byline-line"></div>
+              <div class="byline-bottom" id="bylineBottom"></div>
+            </div>
+            <div class="footer-col-left">
+              <div class="source-block">
+                <div class="label">المصدر</div>
+                <div class="combo">
+                  <span class="name" id="outSrcName"></span>
+                  <span class="sep">—</span>
+                  <span class="type" id="outSrcClass"></span>
+                </div>
+              </div>
+              <div id="contactWrap" style="display:none">
+                <div class="contact-line"></div>
+                <div class="contact-row" id="contactRow" dir="ltr"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <svg class="qamariya" viewBox="0 0 200 200" fill="none">
+          <g stroke="#C7963C" stroke-width="1.4">
+            <circle cx="100" cy="100" r="95"/>
+            <circle cx="100" cy="100" r="70"/>
+            <path d="M100 5 L100 195 M5 100 L195 100 M29 29 L171 171 M171 29 L29 171"/>
+            <path d="M100 30 L124 76 L176 76 L134 106 L150 156 L100 126 L50 156 L66 106 L24 76 L76 76 Z"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const card = document.getElementById('card');
+const stageInner = document.getElementById('stageInner');
+
+function fitPreview(){
+  const w = card.classList.contains('size-square') ? 1080 : 1200;
+  const h = card.classList.contains('size-square') ? 1080 : 675;
+  const stageEl = document.querySelector('.stage');
+  const maxW = Math.min(stageEl.clientWidth - 48, 760);
+  const maxH = stageEl.clientHeight - 48;
+  const scale = Math.min(maxW / w, maxH / h, 0.85);
+  card.style.transform = `scale(${scale})`;
+  card.style.transformOrigin = 'top center';
+  stageInner.style.width = (w*scale) + 'px';
+  stageInner.style.height = (h*scale) + 'px';
+}
+
+/* ===== تبديل نوع البطاقة ===== */
+document.getElementById('modeTabs').addEventListener('click', e=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  document.querySelectorAll('#modeTabs button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const mode = btn.dataset.mode;
+  document.querySelectorAll('.fields').forEach(f=> f.style.display = f.dataset.for===mode ? 'contents' : 'none');
+  document.querySelectorAll('.mode-block').forEach(m=> m.style.display = m.dataset.mode===mode ? '' : 'none');
+  document.getElementById('kickerRule').style.display = (mode==='breaking') ? 'none' : 'block';
+  fitPreview();
+});
+
+/* ===== تبديل تبويبات لوحة التحكم ===== */
+document.getElementById('panelTabs').addEventListener('click', e=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  document.querySelectorAll('#panelTabs button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const ptab = btn.dataset.ptab;
+  document.querySelectorAll('.ptab').forEach(p=>{
+    p.style.display = p.dataset.ptabPanel===ptab ? 'flex' : 'none';
+  });
+  fitPreview();
+});
+
+/* ===== تبديل المقاس ===== */
+document.getElementById('sizeToggle').addEventListener('click', e=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  document.querySelectorAll('#sizeToggle button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  card.classList.remove('size-square','size-wide');
+  card.classList.add(btn.dataset.size);
+  fitPreview();
+});
+
+/* ===== تبديل الطابع ===== */
+document.getElementById('variantToggle').addEventListener('click', e=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  document.querySelectorAll('#variantToggle button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  card.classList.toggle('light', btn.dataset.variant==='light');
+});
+
+/* ===== ربط الحقول بالمعاينة ===== */
+const bind = (id, outId) => {
+  const el = document.getElementById(id);
+  const out = document.getElementById(outId);
+  el.addEventListener('input', ()=> out.textContent = el.value);
+};
+bind('b_tag','outTag');
+bind('b_headline','outHeadline');
+function renderSubline(){
+  const raw = document.getElementById('b_sub').value;
+  const paragraphs = raw.split('\n').map(s=>s.trim()).filter(Boolean);
+  const html = paragraphs.map(p=>`<p>${esc(p)}</p>`).join('');
+  document.getElementById('outSub').innerHTML = html;
+}
+document.getElementById('b_sub').addEventListener('input', renderSubline);
+renderSubline();
+document.getElementById('subSizeToggle').addEventListener('click', e=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  document.querySelectorAll('#subSizeToggle button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('outSub').style.fontSize = btn.dataset.size + 'px';
+  document.getElementById('outSub').style.lineHeight = (btn.dataset.size==='23') ? '1.7' : (btn.dataset.size==='16' ? '1.85' : '1.75');
+});
+bind('q_text','outQuote');
+bind('q_role','outQRole');
+bind('s_eyebrow','outSEyebrow');
+bind('s_number','outSNumber');
+bind('s_label','outSLabel');
+bind('s_k1','outSK1');
+bind('s_v1','outSV1');
+bind('s_k2','outSK2');
+bind('s_v2','outSV2');
+let threadWord = 'سلسلة';
+function renderThreadEyebrow(){
+  const num = document.getElementById('t_num').value.trim();
+  document.getElementById('outTCount').textContent = num ? `${threadWord} · ${num} أجزاء` : threadWord;
+}
+document.getElementById('threadWordToggle').addEventListener('click', e=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  document.querySelectorAll('#threadWordToggle button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  threadWord = btn.dataset.word;
+  renderThreadEyebrow();
+});
+document.getElementById('t_num').addEventListener('input', renderThreadEyebrow);
+renderThreadEyebrow();
+bind('t_title','outTTitle');
+bind('t_teaser','outTTeaser');
+bind('dl_loc','dlLoc');
+bind('dl_date','dlDate');
+bind('src_name','outSrcName');
+bind('src_class','outSrcClass');
+
+/* ===== قاعدة تصنيف المصادر وفق LATI-X-301 ===== */
+const SOURCE_MAP = {
+  // اليمن — رسمي
+  "رئاسة مجلس القيادة الرئاسي":"مصدر رسمي يمني","وكالة سبأ (عدن)":"وكالة رسمية يمنية",
+  "وكالة الصحافة اليمنية":"وكالة رسمية يمنية","قناة اليمن (عدن)":"إعلام رسمي يمني",
+  "قناة عدن":"إعلام رسمي يمني","قناة الإيمان":"إعلام رسمي يمني","قناة حضرموت":"إعلام رسمي محلي",
+  // اليمن — سلطات صنعاء (أمر واقع)
+  "المجلس السياسي الأعلى":"سلطة أمر واقع (صنعاء)","حكومة صنعاء":"سلطة أمر واقع (صنعاء)",
+  "وكالة سبأ (صنعاء)":"سلطة أمر واقع (صنعاء)","صحيفة الثورة":"سلطة أمر واقع (صنعاء)",
+  "قناة المسيرة":"سلطة أمر واقع (صنعاء)","أنصار الله":"سلطة أمر واقع (صنعاء)",
+  // اليمن — الانتقالي
+  "المجلس الانتقالي الجنوبي":"سلطة أمر واقع (متمرد)",
+  // اليمن — أحزاب
+  "المؤتمر الشعبي العام":"حزب سياسي يمني","التجمع اليمني للإصلاح":"حزب سياسي يمني",
+  "الحزب الاشتراكي اليمني":"حزب سياسي يمني","التنظيم الوحدوي الشعبي الناصري":"حزب سياسي يمني",
+  // اليمن — قنوات خاصة
+  "سهيل":"إعلام حزبي يمني","اليمن اليوم":"إعلام خاص يمني","عدن لايف":"إعلام خاص يمني",
+  // اليمن — مراكز دراسات
+  "مركز صنعاء للدراسات الاستراتيجية":"مركز دراسات يمني مستقل","مركز أبعاد للدراسات الاستراتيجية":"مركز دراسات يمني مستقل",
+  // اليمن — حقوقي
+  "مواطنة لحقوق الإنسان":"منظمة حقوقية يمنية","منظمة سام للحقوق والحريات":"منظمة حقوقية يمنية",
+  "نقابة الصحفيين اليمنيين":"نقابة صحفية يمنية","صحفيات بلا قيود":"منظمة حقوقية يمنية",
+  // اليمن — صحافة مستقلة
+  "المصدر أونلاين":"صحافة يمنية مستقلة","المشاهد نت":"صحافة يمنية مستقلة",
+  "صحيفة النداء":"صحافة يمنية مستقلة","مأرب برس":"صحافة يمنية مستقلة","يمن شباب نت":"صحافة يمنية مستقلة",
+  // الخليج — رسمي
+  "واس":"مصدر رسمي سعودي","وزارة الخارجية السعودية":"مصدر رسمي سعودي","فيصل بن فرحان":"مسؤول سعودي (حساب شخصي)",
+  "وام":"مصدر رسمي إماراتي","وكالة الأنباء العمانية":"مصدر رسمي عُماني","قنا":"مصدر رسمي قطري",
+  "وكالة أنباء الشرق الأوسط":"مصدر رسمي مصري",
+  // إيران
+  "إرنا":"مصدر رسمي إيراني","وكالة فارس":"مصدر شبه رسمي إيراني","وكالة تسنيم":"مصدر شبه رسمي إيراني",
+  "Press TV":"مصدر رسمي إيراني","إيران إنترناشونال":"معارضة إيرانية (خارج البلاد)","BBC فارسي":"إعلام مستقل (فارسي)",
+  // مراكز أبحاث خليجية
+  "مركز الخليج للأبحاث":"مركز أبحاث خليجي مستقل","مركز تريندز":"مركز أبحاث إماراتي",
+  // وكالات دولية
+  "رويترز":"وكالة دولية","Reuters":"وكالة دولية","أسوشيتد برس":"وكالة دولية","AP":"وكالة دولية",
+  "فرانس برس":"وكالة دولية","AFP":"وكالة دولية","بلومبرغ":"وكالة دولية","Bloomberg":"وكالة دولية",
+  "الأناضول":"وكالة دولية","Anadolu":"وكالة دولية",
+  // صحف أمريكية
+  "نيويورك تايمز":"صحافة أمريكية","واشنطن بوست":"صحافة أمريكية","وول ستريت جورنال":"صحافة أمريكية",
+  "فورين أفيرز":"مجلة فكرية أمريكية","فورين بوليسي":"مجلة فكرية أمريكية","CNN":"إعلام أمريكي",
+  // أوروبا
+  "بي بي سي":"إعلام بريطاني","BBC":"إعلام بريطاني","الغارديان":"صحافة بريطانية","فاينانشيال تايمز":"صحافة بريطانية",
+  // إقليمي عربي
+  "الشرق الأوسط":"صحافة إقليمية","العربية":"إعلام إقليمي","الجزيرة":"إعلام إقليمي","إندبندنت عربية":"صحافة إقليمية",
+  // منصات إقليمية إنجليزية
+  "Al-Monitor":"منصة إقليمية مستقلة نسبياً","Middle East Eye":"منصة إقليمية (تمويل قطري محتمل)",
+  "Middle East Monitor":"منصة إقليمية (تمويل قطري)",
+  // مراكز أبحاث متخصصة
+  "مجموعة الأزمات الدولية":"مركز أبحاث دولي متخصص","معهد واشنطن":"مركز أبحاث أمريكي متخصص",
+  "المعهد الأمريكي للشرق الأوسط":"مركز أبحاث أمريكي متخصص",
+  "معهد دول الخليج العربية في واشنطن":"مركز أبحاث (تمويل خليجي)","معهد شؤون الخليج":"مركز أبحاث معارض",
+};
+
+// تعبئة قائمة الاقتراحات
+const dl = document.getElementById('srcList');
+Object.keys(SOURCE_MAP).forEach(name=>{
+  const opt = document.createElement('option');
+  opt.value = name;
+  dl.appendChild(opt);
+});
+
+// الربط الذكي: عند كتابة اسم مطابق، يُقترح التصنيف تلقائياً (يبقى قابلاً للتعديل اليدوي دوماً)
+let lastAutoClass = "وكالة دولية";
+document.getElementById('src_name').addEventListener('input', e=>{
+  const match = SOURCE_MAP[e.target.value.trim()];
+  const classField = document.getElementById('src_class');
+  if(match){
+    classField.value = match;
+    lastAutoClass = match;
+    classField.dispatchEvent(new Event('input'));
+  }
+});
+
+document.getElementById('q_name').addEventListener('input', e=>{
+  const nameNode = document.getElementById('outQName');
+  const roleSpan = document.getElementById('outQRole');
+  nameNode.firstChild.textContent = e.target.value;
+  nameNode.appendChild(roleSpan);
+});
+document.getElementById('brand').addEventListener('input', e=>{
+  document.getElementById('brandMark').textContent = e.target.value;
+  saveSettings();
+});
+
+/* ===== نظام توقيع الكاتب المرن (أعلى / أسفل الحاشية) ===== */
+function esc(s){
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+let bylinePos = 'top';
+document.getElementById('bposTop').addEventListener('click', ()=>{
+  bylinePos = 'top';
+  document.getElementById('bposTop').classList.add('active');
+  document.getElementById('bposBottom').classList.remove('active');
+  renderByline();
+  saveSettings();
+});
+document.getElementById('bposBottom').addEventListener('click', ()=>{
+  bylinePos = 'bottom';
+  document.getElementById('bposBottom').classList.add('active');
+  document.getElementById('bposTop').classList.remove('active');
+  renderByline();
+  saveSettings();
+});
+function renderByline(){
+  const label = document.getElementById('byline_label').value.trim();
+  const name = document.getElementById('byline_name').value.trim();
+  const topEl = document.getElementById('outByline');
+  const bottomEl = document.getElementById('bylineBottom');
+  if(bylinePos==='top'){
+    topEl.textContent = name;
+    bottomEl.textContent = '';
+  } else {
+    topEl.textContent = '';
+    bottomEl.textContent = name ? (label ? label+': '+name : name) : '';
+  }
+  refreshFooterMeta();
+}
+document.getElementById('byline_label').addEventListener('input', ()=>{ renderByline(); saveSettings(); });
+document.getElementById('byline_name').addEventListener('input', ()=>{ renderByline(); saveSettings(); });
+
+/* ===== صف معرّفات التواصل ===== */
+function renderContactRow(){
+  const email = document.getElementById('ct_email').value.trim();
+  const x = document.getElementById('ct_x').value.trim();
+  const fb = document.getElementById('ct_fb').value.trim();
+  const parts = [email, x, fb].filter(Boolean);
+  const html = parts.map(p=>`<span style="color:var(--slate)">${esc(p)}</span>`).join('<span style="color:var(--brass-soft)"> · </span>');
+  document.getElementById('contactRow').innerHTML = html;
+  refreshFooterMeta();
+}
+['ct_email','ct_x','ct_fb'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', ()=>{ renderContactRow(); saveSettings(); });
+});
+
+function refreshFooterMeta(){
+  const hasByline = document.getElementById('bylineBottom').textContent.trim().length > 0;
+  const hasContact = document.getElementById('contactRow').textContent.trim().length > 0;
+  document.getElementById('footerColRight').style.display = hasByline ? 'block' : 'none';
+  document.getElementById('contactWrap').style.display = hasContact ? 'block' : 'none';
+}
+renderByline();
+renderContactRow();
+
+/* ===== صورة الخلفية ===== */
+const bgPhoto = document.getElementById('bgPhoto');
+const clearBg = document.getElementById('clearBg');
+document.getElementById('bgUpload').addEventListener('change', e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    bgPhoto.src = ev.target.result;
+    bgPhoto.style.display = 'block';
+    clearBg.style.display = 'inline-block';
+  };
+  reader.readAsDataURL(file);
+});
+clearBg.addEventListener('click', ()=>{
+  bgPhoto.style.display = 'none';
+  bgPhoto.src = '';
+  clearBg.style.display = 'none';
+  document.getElementById('bgUpload').value = '';
+});
+
+/* ===== التحميل / المعاينة (يعمل على آيفون وأندرويد وسطح المكتب) ===== */
+function isLikelyMobile(){
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+}
+
+function showImageOverlay(dataUrl, hintText){
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position:fixed; inset:0; z-index:9999;
+    background:rgba(5,10,15,.94);
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    padding:18px; gap:14px;
+  `;
+  const hint = document.createElement('div');
+  hint.textContent = hintText || 'اضغط مطولاً على الصورة، ثم اختر "إضافة إلى الصور" أو "حفظ الصورة"';
+  hint.style.cssText = `
+    color:#F4EFE4; font-family:'IBM Plex Sans Arabic', sans-serif;
+    font-size:15px; font-weight:600; text-align:center; direction:rtl;
+    max-width:520px;
+  `;
+  const img = document.createElement('img');
+  img.src = dataUrl;
+  img.style.cssText = `
+    max-width:92vw; max-height:70vh; border-radius:10px;
+    box-shadow:0 10px 40px rgba(0,0,0,.5);
+    -webkit-touch-callout:default;
+  `;
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = 'إغلاق';
+  closeBtn.style.cssText = `
+    padding:11px 26px; background:var(--brass); border:none;
+    border-radius:7px; color:#161006; font-family:'Noto Kufi Arabic', sans-serif;
+    font-weight:800; font-size:14px; cursor:pointer;
+  `;
+  closeBtn.addEventListener('click', ()=> overlay.remove());
+  overlay.appendChild(hint);
+  overlay.appendChild(img);
+  overlay.appendChild(closeBtn);
+  document.body.appendChild(overlay);
+}
+
+document.getElementById('zoomBtn').addEventListener('click', async ()=>{
+  const zb = document.getElementById('zoomBtn');
+  zb.textContent = '...جاري التجهيز';
+  const prevTransform = card.style.transform;
+  card.style.transform = 'none';
+  if(document.fonts && document.fonts.ready){
+    try{ await document.fonts.ready; }catch(e){}
+  }
+  await new Promise(r=>setTimeout(r, 120));
+  try{
+    const canvas = await html2canvas(card, {scale:1.4, backgroundColor:null, useCORS:true});
+    showImageOverlay(canvas.toDataURL('image/png'), 'معاينة مكبّرة — اضغط "إغلاق" للعودة والمتابعة في التعديل');
+  } finally {
+    card.style.transform = prevTransform;
+    zb.textContent = '🔍 تكبير المعاينة';
+  }
+});
+
+document.getElementById('downloadBtn').addEventListener('click', async ()=>{
+  const btn = document.getElementById('downloadBtn');
+  btn.textContent = 'جاري التجهيز...';
+  const prevTransform = card.style.transform;
+  card.style.transform = 'none';
+  if(document.fonts && document.fonts.ready){
+    try{ await document.fonts.ready; }catch(e){}
+  }
+  await new Promise(r=>setTimeout(r, 150));
+  try{
+    const canvas = await html2canvas(card, {scale:2, backgroundColor:null, useCORS:true});
+    const dataUrl = canvas.toDataURL('image/png');
+    if(isLikelyMobile()){
+      showImageOverlay(dataUrl);
+    } else {
+      const link = document.createElement('a');
+      link.download = 'lati-x-post.png';
+      link.href = dataUrl;
+      link.click();
+    }
+  } finally {
+    card.style.transform = prevTransform;
+    btn.textContent = '⬇ تحميل الصورة PNG';
+  }
+});
+
+window.addEventListener('resize', fitPreview);
+window.addEventListener('load', fitPreview);
+fitPreview();
+
+/* ===== الحفظ الدائم للإعدادات الثابتة (الشعار، الكاتب، معرّفات التواصل) ===== */
+async function saveSettings(){
+  const settings = {
+    brand: document.getElementById('brand').value,
+    byline_label: document.getElementById('byline_label').value,
+    byline_name: document.getElementById('byline_name').value,
+    bylinePos: bylinePos,
+    ct_email: document.getElementById('ct_email').value,
+    ct_x: document.getElementById('ct_x').value,
+    ct_fb: document.getElementById('ct_fb').value,
+  };
+  try{
+    await window.storage.set('lati-x-fixed-settings', JSON.stringify(settings), false);
+  }catch(err){
+    console.error('تعذّر حفظ الإعدادات', err);
+  }
+}
+
+async function loadSettings(){
+  try{
+    const res = await window.storage.get('lati-x-fixed-settings', false);
+    if(res && res.value){
+      const s = JSON.parse(res.value);
+      if(s.brand){ document.getElementById('brand').value = s.brand; document.getElementById('brandMark').textContent = s.brand; }
+      if(s.byline_label) document.getElementById('byline_label').value = s.byline_label;
+      if(s.byline_name) document.getElementById('byline_name').value = s.byline_name;
+      if(s.ct_email) document.getElementById('ct_email').value = s.ct_email;
+      if(s.ct_x) document.getElementById('ct_x').value = s.ct_x;
+      if(s.ct_fb) document.getElementById('ct_fb').value = s.ct_fb;
+      if(s.bylinePos === 'bottom'){
+        bylinePos = 'bottom';
+        document.getElementById('bposBottom').classList.add('active');
+        document.getElementById('bposTop').classList.remove('active');
+      }
+    }
+  }catch(err){
+    /* لا توجد إعدادات محفوظة بعد — لا حاجة لأي إجراء */
+  }
+  renderByline();
+  renderContactRow();
+}
+loadSettings();
+
+/* ===== تعبئة مسبقة بالتصريح المعتمد ===== */
+(function(){
+  const qText = document.getElementById('q_text');
+  const qName = document.getElementById('q_name');
+  const qRole = document.getElementById('q_role');
+  const srcName = document.getElementById('src_name');
+  const srcClass = document.getElementById('src_class');
+  const dlLoc = document.getElementById('dl_loc');
+
+  qText.value = '"القيادة الإيرانية مخادعة بشكل لا يصدق... إنهم يطلبون اجتماعاً ثم ينفون علناً"\n\n"إيران لن تمتلك أبداً سلاحاً نووياً"';
+  qName.value = 'دونالد ترامب';
+  qRole.value = 'الرئيس الأمريكي';
+  srcName.value = 'Truth Social';
+  srcClass.value = 'مصدر رسمي أولي — حساب الرئيس الأمريكي';
+  dlLoc.value = 'واشنطن';
+
+  qText.dispatchEvent(new Event('input'));
+  qRole.dispatchEvent(new Event('input'));
+  srcName.dispatchEvent(new Event('input'));
+  srcClass.dispatchEvent(new Event('input'));
+  dlLoc.dispatchEvent(new Event('input'));
+
+  // اسم المتحدث يحتاج معالجة خاصة (outQName له بنية DOM مركّبة)
+  const nameNode = document.getElementById('outQName');
+  const roleSpan = document.getElementById('outQRole');
+  nameNode.firstChild.textContent = qName.value;
+  nameNode.appendChild(roleSpan);
+})();
+
+/* ===== تعبئة تاريخ اليوم تلقائياً ===== */
+(function(){
+  const dateField = document.getElementById('dl_date');
+  if(!dateField.value){
+    const d = new Date();
+    const dd = String(d.getDate()).padStart(2,'0');
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const yyyy = d.getFullYear();
+    dateField.value = `${dd}.${mm}.${yyyy}`;
+    document.getElementById('dlDate').textContent = dateField.value;
+  }
+})();
+</script>
+</body>
+</html>
